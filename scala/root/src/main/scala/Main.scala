@@ -2,6 +2,7 @@ package main
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
+import org.apache.spark.rdd.RDD
 
 // Spark Intro
 // https://dev.classmethod.jp/articles/apache-spark_rdd_investigation/
@@ -9,7 +10,7 @@ import org.apache.spark.SparkConf
 @main def run() = Main.run()
 
 object Main {
-  def printRDD(filterName: String, rdd: org.apache.spark.rdd.RDD[_]) = {
+  def printRDD(filterName: String, rdd: RDD[_]) = {
     println(filterName)
     rdd.foreach { r => { println(r) } }
   }
