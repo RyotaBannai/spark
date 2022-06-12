@@ -10,6 +10,8 @@ import main.NAStatCounter
 @main def run() = Main.run()
 
 case class MatchData(id1: Int, id2: Int, scores: Array[Double], matched: Boolean)
+case class Scored(md: MatchData, score: Double)
+
 // レコードのリンク問題を解決
 object Main:
   def isHeader(line: String): Boolean = line.contains("id_1")
@@ -56,4 +58,25 @@ object Main:
     // 単一の RDD と acc を zip して、各 field を集計.
     // NAStatCounter により、単一のループで NaN を弾いて集計
     // statWithMissing(parsed.map(_.scores)).foreach(println)
-    statWithMissingOpt(parsed.map(_.scores)).foreach(println)
+
+    // val statsm = statWithMissingOpt(parsed.filter(_.matched).map(_.scores))
+    // val statsn = statWithMissingOpt(parsed.filter(!_.matched).map(_.scores))
+
+    // 欠損値が少なく、平均値の差が大きい field を探す -> 2, 5, 6, 7, 8
+    // statsm
+    //   .zip(statsn)
+    //   .map { case (a, b) =>
+    //     (a.missing + b.missing, a.stats.mean - b.stats.mean)
+    //   }
+    //   .foreach(println)
+
+    expect(parsed)
+
+  def expect(rdd: RDD[MatchData]) =
+    def naz(d: Double) = if (Double.NaN.equals(d)) 0.0 else d
+    val ct = rdd.map(md =>
+      val score = Array(2, 5, 6, 7, 8).map(i => naz(md.scores(i))).sum
+      Scored(md, score)
+    )
+    // Map(true -> 20871, false -> 637)
+    println(ct.filter(s => s.score >= 4.0).map(s => s.md.matched).countByValue())
